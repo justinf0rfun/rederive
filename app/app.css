@@ -1,0 +1,24 @@
+@import "tailwindcss" source(".");
+
+@theme {
+  --font-sans: "Geist", "Satoshi", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Geist Mono", "JetBrains Mono", ui-monospace, SFMono-Regular,
+    Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+html,
+body {
+  @apply bg-[#f5f4ef] text-zinc-950;
+
+  @media (prefers-color-scheme: dark) {
+    color-scheme: light;
+  }
+}
+
+body {
+  min-width: 320px;
+}
+
+::selection {
+  @apply bg-emerald-200 text-zinc-950;
+}

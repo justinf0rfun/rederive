@@ -74,7 +74,7 @@ Recommended settings:
 - Production branch: `main`
 - Root directory: repository root
 
-`deploy:production` runs typecheck, tests, production build, remote production D1 migrations, then `wrangler deploy -e production`. Wrangler skips the D1 migration confirmation prompt in CI/CD.
+`deploy:production` runs typecheck, tests, production build, remote production D1 migrations, then `wrangler deploy -e production`. The `production` Wrangler environment deploys the Worker named `rederive` to `rederive.io`; the top-level config is reserved for the `rederive-dev` workers.dev test Worker. Wrangler skips the D1 migration confirmation prompt in CI/CD.
 
 ## Cloudflare Resources
 
@@ -89,3 +89,5 @@ Production resource IDs are not committed. Fill these into `wrangler.jsonc` or e
 - Dev/staging: default Cloudflare `workers.dev` URL
 - Access app: protect `/admin/*`
 - Provider secrets: `OPENAI_API_KEY`, `SEARCH_API_KEY`, `PAPER_SEARCH_API_KEY`
+- Production Worker: `rederive`
+- Dev/test Worker: `rederive-dev` on the default Cloudflare `workers.dev` URL

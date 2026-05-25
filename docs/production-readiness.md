@@ -12,7 +12,7 @@ Last local verification:
 - Local R2 write/read through social card generation
 - Local Workflow binding type generation and Queue fallback dispatch tests
 - Local hard QA gates through publish preflight and module review blockers
-- Production deploy path is Cloudflare Workers Builds/Git integration using `pnpm run deploy:production`
+- Production deploy path is Cloudflare Workers Builds/Git integration using `pnpm run deploy:production` to deploy Worker `rederive`
 
 Production resources to confirm:
 
@@ -33,7 +33,7 @@ Confirmed Cloudflare resources:
 - R2 dev/prod buckets are created and configured.
 - Queue fallback dev/prod resources are created and configured.
 - Turnstile widget `rederive-public-forms` is created; site key is configured; `TURNSTILE_SECRET_KEY` is installed for default and production Workers.
-- Production custom domain is configured as `rederive.io`; dev/staging use the default Cloudflare `workers.dev` URL.
+- Production Worker is `rederive` with custom domain `rederive.io`; dev/test Worker is `rederive-dev` on the default Cloudflare `workers.dev` URL.
 - Cloudflare Access application `rederive-admin-allow` protects `rederive.io/admin/*`; policy allows `mxtsing@gmail.com`.
 - `ALLOWED_ADMIN_EMAILS` is configured as `mxtsing@gmail.com`.
 

@@ -4,7 +4,7 @@
  */
 {
 	"$schema": "node_modules/wrangler/config-schema.json",
-	"name": "rederive",
+	"name": "rederive-dev",
 	"compatibility_date": "2026-05-23",
 	"main": "./workers/app.ts",
 	"vars": {
@@ -60,7 +60,7 @@
 	],
 	"env": {
 		"production": {
-			"name": "rederive-prod",
+			"name": "rederive",
 			"routes": [
 				{
 					"pattern": "rederive.io",

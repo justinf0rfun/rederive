@@ -4,11 +4,17 @@
  */
 {
 	"$schema": "node_modules/wrangler/config-schema.json",
-	"name": "rederive-dev",
+	"name": "rederive",
 	"compatibility_date": "2026-05-23",
 	"main": "./workers/app.ts",
+	"routes": [
+		{
+			"pattern": "rederive.io",
+			"custom_domain": true
+		}
+	],
 	"vars": {
-		"APP_ENV": "development",
+		"APP_ENV": "production",
 		"AI_PROVIDER": "stub",
 		"SEARCH_PROVIDER": "stub",
 		"PAPER_SEARCH_PROVIDER": "stub",
@@ -25,27 +31,27 @@
 	"d1_databases": [
 		{
 			"binding": "DB",
-			"database_name": "rederive-dev",
-			"database_id": "8bd4c05f-0bd5-45ee-b05e-85e9cb3779d6",
+			"database_name": "rederive-prod",
+			"database_id": "07d829cd-dfc6-42d5-8d5a-ef60f45a66b0",
 			"migrations_dir": "migrations"
 		}
 	],
 	"r2_buckets": [
 		{
 			"binding": "ARTIFACTS",
-			"bucket_name": "rederive-artifacts-dev"
+			"bucket_name": "rederive-artifacts-prod"
 		}
 	],
 	"queues": {
 		"producers": [
 			{
 				"binding": "GENERATION_QUEUE",
-				"queue": "rederive-generation-dev"
+				"queue": "rederive-generation-prod"
 			}
 		],
 		"consumers": [
 			{
-				"queue": "rederive-generation-dev",
+				"queue": "rederive-generation-prod",
 				"max_batch_size": 5,
 				"max_batch_timeout": 30
 			}
@@ -54,7 +60,7 @@
 	"workflows": [
 		{
 			"binding": "GENERATION_WORKFLOW",
-			"name": "rederive-generation-dev",
+			"name": "rederive-generation-prod",
 			"class_name": "GenerationWorkflow"
 		}
 	],
@@ -108,6 +114,53 @@
 				{
 					"binding": "GENERATION_WORKFLOW",
 					"name": "rederive-generation-prod",
+					"class_name": "GenerationWorkflow"
+				}
+			]
+		},
+		"dev": {
+			"name": "rederive-dev",
+			"vars": {
+				"APP_ENV": "development",
+				"AI_PROVIDER": "stub",
+				"SEARCH_PROVIDER": "stub",
+				"PAPER_SEARCH_PROVIDER": "stub",
+				"TURNSTILE_SITE_KEY": "0x4AAAAAADVphFgQrMFFMQcj",
+				"ALLOWED_ADMIN_EMAILS": "mxtsing@gmail.com"
+			},
+			"d1_databases": [
+				{
+					"binding": "DB",
+					"database_name": "rederive-dev",
+					"database_id": "8bd4c05f-0bd5-45ee-b05e-85e9cb3779d6",
+					"migrations_dir": "migrations"
+				}
+			],
+			"r2_buckets": [
+				{
+					"binding": "ARTIFACTS",
+					"bucket_name": "rederive-artifacts-dev"
+				}
+			],
+			"queues": {
+				"producers": [
+					{
+						"binding": "GENERATION_QUEUE",
+						"queue": "rederive-generation-dev"
+					}
+				],
+				"consumers": [
+					{
+						"queue": "rederive-generation-dev",
+						"max_batch_size": 5,
+						"max_batch_timeout": 30
+					}
+				]
+			},
+			"workflows": [
+				{
+					"binding": "GENERATION_WORKFLOW",
+					"name": "rederive-generation-dev",
 					"class_name": "GenerationWorkflow"
 				}
 			]

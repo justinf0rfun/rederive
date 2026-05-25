@@ -5,8 +5,9 @@
 	"scripts": {
 		"build": "react-router build",
 		"cf-typegen": "wrangler types",
-		"deploy": "pnpm run build && wrangler deploy",
-		"deploy:production": "pnpm run typecheck && pnpm run test && pnpm run build && wrangler d1 migrations apply DB --remote -e production && wrangler deploy -e production",
+		"deploy": "pnpm run typecheck && pnpm run test && pnpm run build && wrangler d1 migrations apply DB --remote && wrangler deploy",
+		"deploy:dev": "pnpm run typecheck && pnpm run test && pnpm run build && wrangler d1 migrations apply DB --remote -e dev && wrangler deploy -e dev",
+		"deploy:production": "pnpm run deploy",
 		"dev": "react-router dev",
 		"postinstall": "pnpm run cf-typegen",
 		"preview": "pnpm run build && vite preview",

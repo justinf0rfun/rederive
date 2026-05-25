@@ -74,7 +74,7 @@ Recommended settings:
 - Production branch: `main`
 - Root directory: repository root
 
-`deploy:production` runs typecheck, tests, production build, remote production D1 migrations, then `wrangler deploy -e production`. The `production` Wrangler environment deploys the Worker named `rederive` to `rederive.io`; the top-level config is reserved for the `rederive-dev` workers.dev test Worker. Wrangler skips the D1 migration confirmation prompt in CI/CD.
+`deploy:production` runs typecheck, tests, production build, remote production D1 migrations, then `wrangler deploy`. The top-level Wrangler config is production and deploys the Worker named `rederive` to `rederive.io`. `env.production` mirrors that production target so Cloudflare Builds commands that use `-e production` are also safe. The optional `dev` Wrangler environment deploys the `rederive-dev` workers.dev test Worker. Wrangler skips the D1 migration confirmation prompt in CI/CD.
 
 ## Cloudflare Resources
 

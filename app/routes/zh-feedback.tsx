@@ -197,8 +197,20 @@ export default function FeedbackPage({
               </span>
             )}
           </label>
-          {loaderData.turnstileSiteKey && (
-            <input name="cf-turnstile-response" type="hidden" value="" />
+          {loaderData.turnstileSiteKey ? (
+            <>
+              <script
+                async
+                defer
+                src="https://challenges.cloudflare.com/turnstile/v0/api.js"
+              />
+              <div
+                className="cf-turnstile"
+                data-sitekey={loaderData.turnstileSiteKey}
+              />
+            </>
+          ) : (
+            <input name="cf-turnstile-response" type="hidden" value="dev" />
           )}
           <button
             className="w-fit rounded-sm bg-zinc-950 px-4 py-2 text-sm font-medium text-white transition active:translate-y-px"

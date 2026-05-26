@@ -1,4 +1,4 @@
-import { Form } from "react-router";
+import { Form, redirect } from "react-router";
 
 import { requireAdminIdentity } from "~/domain/admin/access.server";
 import { createAuditLog } from "~/domain/audit/repository.server";
@@ -69,6 +69,7 @@ export function meta({}: Route.MetaArgs) {
 export async function loader({ context, request }: Route.LoaderArgs) {
   const env = context.cloudflare.env;
   const admin = requireAdminIdentity(request, env);
+  const url = new URL(request.url);
   const [topicRequests, generationRuns, feedbackItems, subscribers] =
     await Promise.all([
     listRecentTopicRequests(env.DB, 10),
@@ -107,6 +108,7 @@ export async function loader({ context, request }: Route.LoaderArgs) {
       admin.source === "local-mock"
         ? "local mock"
         : "cloudflare access",
+    importedRunId: url.searchParams.get("imported"),
     topicRequests,
     feedbackItems,
     subscribers,
@@ -439,11 +441,7 @@ export async function action({ context, request }: Route.ActionArgs) {
         },
       });
 
-      return {
-        ok: true,
-        runId: result.runId,
-        topicDisplayName: result.topicDisplayName,
-      };
+      return redirect(`/admin?imported=${result.runId}`);
     } catch (error) {
       throw new Response(
         error instanceof Error ? error.message : "Bundle import failed.",
@@ -489,11 +487,7 @@ export async function action({ context, request }: Route.ActionArgs) {
         },
       });
 
-      return {
-        ok: true,
-        runId: result.runId,
-        topicDisplayName: result.topicDisplayName,
-      };
+      return redirect(`/admin?imported=${result.runId}`);
     } catch (error) {
       throw new Response(
         error instanceof Error ? error.message : "Markdown import failed.",
@@ -608,6 +602,12 @@ export default function Admin({
               </ul>
             )}
           </div>
+        )}
+        {loaderData.importedRunId && (
+          <p className="mt-6 rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-900">
+            Local redo import completed:{" "}
+            <span className="font-mono">{loaderData.importedRunId}</span>
+          </p>
         )}
 
         <div className="mt-8 grid gap-4 rounded-xl border border-zinc-300/80 bg-white/70 p-5">

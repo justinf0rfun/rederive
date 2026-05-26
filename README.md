@@ -91,3 +91,13 @@ Production resource IDs are not committed. Fill these into `wrangler.jsonc` or e
 - Provider secrets: `OPENAI_API_KEY`, `SEARCH_API_KEY`, `PAPER_SEARCH_API_KEY`
 - Production Worker: `rederive`
 - Dev/test Worker: `rederive-dev` on the default Cloudflare `workers.dev` URL
+
+## Local redo Bundle Import
+
+The MVP content path can run without provider keys: generate locally with the
+`redo` skill, then upload the generated Markdown file or paste a
+`redo_bundle_v1` JSON file into `/admin`. The import creates a reviewable draft
+run and still uses the existing source, claim-evidence, module review, and
+publish gates.
+
+See `docs/local-redo-bundle.md` for the bundle shape.

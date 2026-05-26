@@ -29,6 +29,7 @@ import type {
   GenerationStep,
   GenerationStepKey,
 } from "~/domain/generation-steps/types";
+import { getRedoPromptManifestForStep } from "~/domain/generation-prompts/redo-skill";
 import {
   getGenerationRunById,
   updateGenerationRunStatus,
@@ -345,14 +346,14 @@ async function runFakeStep(db: D1Database, step: GenerationStep): Promise<void> 
       throw new SourceCorpusBlockedError(error.message);
     }
 
-    await markStepCompleted(db, step.runId, step.stepKey, {
+    await markStepCompleted(db, step.runId, step.stepKey, stepOutput(step, {
       mode: "deterministic_source_discovery_stub",
       stepKey: step.stepKey,
       discoveredSourceCount: sources.length,
       evaluation,
       sourceIds: sources.map((source) => source.id),
       completedAt: new Date().toISOString(),
-    });
+    }));
     return;
   }
 
@@ -387,7 +388,7 @@ async function runFakeStep(db: D1Database, step: GenerationStep): Promise<void> 
       throw new PaperCoverageBlockedError(error.message);
     }
 
-    await markStepCompleted(db, step.runId, step.stepKey, {
+    await markStepCompleted(db, step.runId, step.stepKey, stepOutput(step, {
       mode: "deterministic_paper_design_doc_discovery_stub",
       stepKey: step.stepKey,
       discoveredSourceCount: sources.length,
@@ -395,7 +396,7 @@ async function runFakeStep(db: D1Database, step: GenerationStep): Promise<void> 
       sourceIds: sources.map((source) => source.id),
       requestedMoreSourcesCount: requestOrdinal,
       completedAt: new Date().toISOString(),
-    });
+    }));
     return;
   }
 
@@ -472,14 +473,14 @@ async function runFakeStep(db: D1Database, step: GenerationStep): Promise<void> 
       throw new DraftModuleBlockedError(error.message);
     }
 
-    await markStepCompleted(db, step.runId, step.stepKey, {
+    await markStepCompleted(db, step.runId, step.stepKey, stepOutput(step, {
       mode: "deterministic_qa_stub",
       stepKey: step.stepKey,
       paperDesignDocCoverage: coverage,
       claimEvidenceEvaluation,
       summary: "Completed QA with paper/design-doc coverage gate.",
       completedAt: new Date().toISOString(),
-    });
+    }));
     return;
   }
 
@@ -510,14 +511,14 @@ async function runFakeStep(db: D1Database, step: GenerationStep): Promise<void> 
       throw new ClaimEvidenceBlockedError(error.message);
     }
 
-    await markStepCompleted(db, step.runId, step.stepKey, {
+    await markStepCompleted(db, step.runId, step.stepKey, stepOutput(step, {
       mode: "deterministic_claim_evidence_map_stub",
       stepKey: step.stepKey,
       evidenceCount: claimEvidenceMap.evidence.length,
       claimCount: claimEvidenceMap.claims.length,
       evaluation,
       completedAt: new Date().toISOString(),
-    });
+    }));
     return;
   }
 
@@ -564,13 +565,13 @@ async function runFakeStep(db: D1Database, step: GenerationStep): Promise<void> 
       throw new Error(error.message);
     }
 
-    await markStepCompleted(db, step.runId, step.stepKey, {
+    await markStepCompleted(db, step.runId, step.stepKey, stepOutput(step, {
       mode: "deterministic_stage_outline_stub",
       stepKey: step.stepKey,
       moduleIds: [orientationModule.id, stageOutlineModule.id],
       stageCount: stageOutline.content.stageCount,
       completedAt: new Date().toISOString(),
-    });
+    }));
     return;
   }
 
@@ -643,23 +644,33 @@ async function runFakeStep(db: D1Database, step: GenerationStep): Promise<void> 
       throw new Error(error.message);
     }
 
-    await markStepCompleted(db, step.runId, step.stepKey, {
+    await markStepCompleted(db, step.runId, step.stepKey, stepOutput(step, {
       mode: "deterministic_stage_module_stub",
       stepKey: step.stepKey,
       moduleIds: modules.map((module) => module.id),
       stageCount: stageDrafts.length,
       analyticalModuleCount: analyticalDrafts.length,
       completedAt: new Date().toISOString(),
-    });
+    }));
     return;
   }
 
-  await markStepCompleted(db, step.runId, step.stepKey, {
+  await markStepCompleted(db, step.runId, step.stepKey, stepOutput(step, {
     mode: "deterministic_stub",
     stepKey: step.stepKey,
     summary: `Completed ${step.stepKey} with fake output.`,
     completedAt: new Date().toISOString(),
-  });
+  }));
+}
+
+function stepOutput(
+  step: GenerationStep,
+  output: Record<string, unknown>
+): Record<string, unknown> {
+  return {
+    ...output,
+    prompt: getRedoPromptManifestForStep(step.stepKey),
+  };
 }
 
 function extractValidationBlockers(validation: Record<string, unknown>): string[] {

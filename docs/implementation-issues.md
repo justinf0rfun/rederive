@@ -40,6 +40,8 @@ This file tracks implementation as local markdown issues until a real issue trac
 | RDR-020 | done | AFK | Seed benchmark case and end-to-end demo | RDR-002, RDR-014, RDR-015, RDR-016 |
 | RDR-021 | blocked | HITL | Production readiness pass | RDR-001 through RDR-020 |
 | RDR-022 | done | AFK | Upgrade generation orchestration to Cloudflare Workflows | RDR-006, RDR-014 |
+| RDR-023 | done | AFK | Migrate redo skill prompt into versioned generation prompts | RDR-006, RDR-022 |
+| RDR-024 | done | AFK | Import local redo skill bundles as reviewable drafts | RDR-014, RDR-023 |
 
 ## Recommended Execution Order
 
@@ -53,6 +55,8 @@ This file tracks implementation as local markdown issues until a real issue trac
 8. RDR-020
 9. RDR-021
 10. RDR-022 when staged generation complexity justifies durable workflow execution.
+11. RDR-023 before wiring real AI/search provider adapters.
+12. RDR-024 when local redo skill remains the primary authoring path.
 
 ## RDR-001: Bootstrap Cloudflare Full-Stack App
 
@@ -178,6 +182,52 @@ Notes:
 
 - MVP should start with a Cloudflare Queue adapter because it is simpler and already represented in `wrangler.jsonc`.
 - Keep the orchestration interface durable-step-shaped so RDR-022 can replace or augment Queue execution with Cloudflare Workflows later.
+
+## RDR-023: Migrate redo Skill Prompt into Versioned Generation Prompts
+
+Status: done
+Type: AFK
+Blocked by: RDR-006, RDR-022
+
+Move the mature redo skill prompt from local skill runtime context into the website as a versioned generation prompt asset, without making the deployed Worker depend on local skill files.
+
+Acceptance criteria:
+
+- [x] Prompt version is explicit and importable by provider adapters.
+- [x] Prompt source is recorded for traceability.
+- [x] Core redo rules are preserved: evidence requirements, separate paper/design-doc discovery, stage decision pressure, candidate options, debt IDs, debt map, pain ranking, causal chain, sources, style, and QA gate.
+- [x] Generation steps record prompt metadata in their output.
+- [x] Tests fail if core prompt requirements are accidentally removed.
+
+Notes:
+
+- The deployed site does not call the local `redo` skill. It stores a synchronized prompt asset under `app/domain/generation-prompts/`.
+- Future provider adapters should call `buildRedoPromptForStep` and persist the returned `promptVersion` with generated artifacts.
+
+## RDR-024: Import Local redo Skill Bundles as Reviewable Drafts
+
+Status: done
+Type: AFK
+Blocked by: RDR-014, RDR-023
+
+Support the revised MVP production model: humans generate high-depth redo content locally with the mature redo skill, then import a structured `redo_bundle_v1` into the website for validation, module review, immutable publishing, and distribution.
+
+Acceptance criteria:
+
+- [x] `redo_bundle_v1` schema is explicit and validates against the published redo contract.
+- [x] Bundles record `sourceMode=local_redo_skill` and `promptVersion`.
+- [x] Admin can upload/paste redo Markdown or paste bundle JSON from `/admin`.
+- [x] Import creates a generation run in `ready_for_review`.
+- [x] Import stores sources, paper/design-doc coverage, claim-evidence map, draft modules, and source notes.
+- [x] Publish still requires module approval and existing hard gates.
+- [x] Tests reject bundles that remove required paper/design-doc coverage.
+
+Notes:
+
+- Public users still only submit topic requests and structured feedback.
+- This path intentionally avoids provider dependency for MVP content production.
+- Markdown import normalizes non-contract debt IDs such as `D3b` and `D2-4` instead of weakening the published contract.
+- Future AI provider integration can remain additive instead of replacing the local authoring workflow.
 
 ## RDR-007: Source Discovery and Source Corpus Review
 

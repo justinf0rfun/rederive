@@ -27,6 +27,10 @@ import {
   initializeGenerationRun,
 } from "~/domain/generation/orchestrator.server";
 import {
+  importLocalRedoBundle,
+  importLocalRedoMarkdown,
+} from "~/domain/local-redo-bundles/import.server";
+import {
   listGenerationStepsForRuns,
   requestMorePaperDesignDocSources,
 } from "~/domain/generation-steps/repository.server";
@@ -410,6 +414,94 @@ export async function action({ context, request }: Route.ActionArgs) {
     };
   }
 
+  if (intent === "import-local-redo-bundle") {
+    const bundleJson = String(formData.get("bundleJson") || "").trim();
+    if (!bundleJson) {
+      throw new Response("Bundle JSON is required", { status: 400 });
+    }
+
+    try {
+      const result = await importLocalRedoBundle(env.DB, {
+        bundleJson,
+        importedBy: admin.email,
+      });
+      await createAuditLog(env.DB, {
+        actorType: "admin",
+        actorId: admin.email,
+        action: "local_redo_bundle.import",
+        entityType: "generation_run",
+        entityId: result.runId,
+        metadata: {
+          topicId: result.topicId,
+          sourceCount: result.sourceCount,
+          claimCount: result.claimCount,
+          moduleCount: result.moduleCount,
+        },
+      });
+
+      return {
+        ok: true,
+        runId: result.runId,
+        topicDisplayName: result.topicDisplayName,
+      };
+    } catch (error) {
+      throw new Response(
+        error instanceof Error ? error.message : "Bundle import failed.",
+        { status: 400 }
+      );
+    }
+  }
+
+  if (intent === "import-local-redo-markdown") {
+    const markdownText = String(formData.get("markdownText") || "").trim();
+    const markdownFile = formData.get("markdownFile");
+    const markdown =
+      markdownFile instanceof File && markdownFile.size > 0
+        ? await markdownFile.text()
+        : markdownText;
+
+    if (!markdown.trim()) {
+      throw new Response("Markdown content or file is required", {
+        status: 400,
+      });
+    }
+
+    try {
+      const result = await importLocalRedoMarkdown(env.DB, {
+        markdown,
+        importedBy: admin.email,
+      });
+      await createAuditLog(env.DB, {
+        actorType: "admin",
+        actorId: admin.email,
+        action: "local_redo_markdown.import",
+        entityType: "generation_run",
+        entityId: result.runId,
+        metadata: {
+          topicId: result.topicId,
+          sourceCount: result.sourceCount,
+          claimCount: result.claimCount,
+          moduleCount: result.moduleCount,
+          fileName:
+            markdownFile instanceof File && markdownFile.size > 0
+              ? markdownFile.name
+              : null,
+        },
+      });
+
+      return {
+        ok: true,
+        runId: result.runId,
+        topicDisplayName: result.topicDisplayName,
+      };
+    } catch (error) {
+      throw new Response(
+        error instanceof Error ? error.message : "Markdown import failed.",
+        { status: 400 }
+      );
+    }
+  }
+
   if (intent === "create-feedback-follow-up-run") {
     const feedbackId = String(formData.get("feedbackId") || "");
     const feedback = await getFeedbackItemById(env.DB, feedbackId);
@@ -533,6 +625,7 @@ export default function Admin({
           </Form>
         </div>
 
+        <LocalRedoImportPanel />
         <FeedbackPanel feedbackItems={loaderData.feedbackItems} />
         <SubscribersPanel subscribers={loaderData.subscribers} />
         <TopicRequestsPanel topicRequests={loaderData.topicRequests} />
@@ -548,6 +641,73 @@ function AdminFact({ label, value }: { label: string; value: string }) {
       <span className="text-zinc-500">{label}</span>
       <span className="font-mono text-sm">{value}</span>
     </div>
+  );
+}
+
+function LocalRedoImportPanel() {
+  return (
+    <section className="mt-8 rounded-xl border border-zinc-300/80 bg-white/70 p-5">
+      <div className="border-b border-zinc-200 pb-4">
+        <p className="font-mono text-xs uppercase tracking-[0.16em] text-zinc-500">
+          local redo import
+        </p>
+        <h2 className="mt-2 text-xl font-medium text-zinc-950">
+          Import reviewed local bundle
+        </h2>
+        <p className="mt-2 max-w-3xl text-sm leading-6 text-zinc-600">
+          Paste a redo_bundle_v1 JSON exported from the local redo workflow. The
+          import creates a draft run and keeps module review and publish gates in
+          place.
+        </p>
+      </div>
+      <Form
+        className="mt-5 grid gap-3"
+        encType="multipart/form-data"
+        method="post"
+      >
+        <input name="intent" type="hidden" value="import-local-redo-markdown" />
+        <label className="grid gap-2 text-sm font-medium text-zinc-900">
+          redo Markdown file
+          <input
+            accept=".md,text/markdown,text/plain"
+            className="rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900"
+            name="markdownFile"
+            type="file"
+          />
+        </label>
+        <label className="grid gap-2 text-sm font-medium text-zinc-900">
+          or paste Markdown
+          <textarea
+            className="min-h-40 resize-y rounded-md border border-zinc-300 bg-white px-3 py-2 font-mono text-xs leading-5 text-zinc-900 outline-none transition focus:border-zinc-950"
+            name="markdownText"
+            placeholder="# Apache Kafka：逆向学习"
+          />
+        </label>
+        <button
+          className="w-fit rounded-md bg-zinc-950 px-3 py-2 text-sm font-medium text-white transition active:translate-y-px"
+          type="submit"
+        >
+          Import Markdown
+        </button>
+      </Form>
+      <Form className="mt-6 grid gap-3 border-t border-zinc-200 pt-5" method="post">
+        <input name="intent" type="hidden" value="import-local-redo-bundle" />
+        <label className="grid gap-2 text-sm font-medium text-zinc-900">
+          or paste structured bundle JSON
+        <textarea
+          className="min-h-56 resize-y rounded-md border border-zinc-300 bg-white px-3 py-2 font-mono text-xs leading-5 text-zinc-900 outline-none transition focus:border-zinc-950"
+          name="bundleJson"
+          placeholder='{"bundleVersion":"redo_bundle_v1","sourceMode":"local_redo_skill",...}'
+        />
+        </label>
+        <button
+          className="w-fit rounded-md border border-zinc-300 bg-white/70 px-3 py-2 text-sm font-medium text-zinc-900 transition active:translate-y-px"
+          type="submit"
+        >
+          Import bundle
+        </button>
+      </Form>
+    </section>
   );
 }
 

@@ -660,7 +660,8 @@ function LocalRedoImportPanel() {
           place.
         </p>
       </div>
-      <Form
+      <form
+        action="/admin"
         className="mt-5 grid gap-3"
         encType="multipart/form-data"
         method="post"
@@ -689,8 +690,12 @@ function LocalRedoImportPanel() {
         >
           Import Markdown
         </button>
-      </Form>
-      <Form className="mt-6 grid gap-3 border-t border-zinc-200 pt-5" method="post">
+      </form>
+      <form
+        action="/admin"
+        className="mt-6 grid gap-3 border-t border-zinc-200 pt-5"
+        method="post"
+      >
         <input name="intent" type="hidden" value="import-local-redo-bundle" />
         <label className="grid gap-2 text-sm font-medium text-zinc-900">
           or paste structured bundle JSON
@@ -706,7 +711,7 @@ function LocalRedoImportPanel() {
         >
           Import bundle
         </button>
-      </Form>
+      </form>
     </section>
   );
 }

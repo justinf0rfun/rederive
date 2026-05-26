@@ -23,7 +23,14 @@ export function requireAdminIdentity(
 
   const email = request.headers.get("Cf-Access-Authenticated-User-Email");
   if (!email) {
-    throw redirect("/cdn-cgi/access/login");
+    const url = new URL(request.url);
+    if (url.pathname === "/admin") {
+      throw redirect("/admin/");
+    }
+
+    throw new Response("Cloudflare Access identity is required.", {
+      status: 401,
+    });
   }
 
   const allowedEmails = parseAllowedEmails(env.ALLOWED_ADMIN_EMAILS);

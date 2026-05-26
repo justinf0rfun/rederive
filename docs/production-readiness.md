@@ -23,7 +23,7 @@ Production resources to confirm:
 - Workflow resources: `rederive-generation-dev`, `rederive-generation-prod`.
 - Queue fallback resources: `rederive-generation-dev`, `rederive-generation-prod`.
 - Turnstile widget and secret for public topic, feedback, and subscribe forms.
-- Cloudflare Access application protecting `/admin/*`.
+- Cloudflare Access application protecting `/admin` and `/admin/*`.
 - Allowed admin email or domain for `ALLOWED_ADMIN_EMAILS`.
 
 Confirmed Cloudflare resources:
@@ -34,7 +34,7 @@ Confirmed Cloudflare resources:
 - Queue fallback dev/prod resources are created and configured.
 - Turnstile widget `rederive-public-forms` is created; site key is configured; `TURNSTILE_SECRET_KEY` is installed for default and production Workers.
 - Production Worker is `rederive` with custom domain `rederive.io`; dev/test Worker is `rederive-dev` on the default Cloudflare `workers.dev` URL.
-- Cloudflare Access application `rederive-admin-allow` protects `rederive.io/admin/*`; policy allows `mxtsing@gmail.com`.
+- Cloudflare Access application `rederive-admin-allow` protects `rederive.io/admin` and `rederive.io/admin/*`; policy allows `mxtsing@gmail.com`.
 - `ALLOWED_ADMIN_EMAILS` is configured as `mxtsing@gmail.com`.
 
 Secrets and vars:

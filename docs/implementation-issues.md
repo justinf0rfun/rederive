@@ -122,7 +122,7 @@ Status: done
 Type: HITL
 Blocked by: RDR-001
 
-Protect `/admin/*` with Cloudflare Access in deployed environments and provide safe local mock identity for development.
+Protect `/admin` and `/admin/*` with Cloudflare Access in deployed environments and provide safe local mock identity for development.
 
 Acceptance criteria:
 
@@ -139,7 +139,7 @@ Notes:
 
 - Local mock identity is implemented as `local-admin@rederive.dev` for non-production environments.
 - Production reads `Cf-Access-Authenticated-User-Email` and optionally enforces `ALLOWED_ADMIN_EMAILS`.
-- Access application `rederive-admin-allow` protects `rederive.io/admin/*`; policy allows `mxtsing@gmail.com`.
+- Access application `rederive-admin-allow` protects `rederive.io/admin` and `rederive.io/admin/*`; policy allows `mxtsing@gmail.com`.
 
 ## RDR-005: Admin Topic Pool to Generation Run
 

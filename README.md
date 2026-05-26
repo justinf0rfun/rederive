@@ -18,7 +18,7 @@ Cloudflare-backed website for publishing and reviewing structured `redo` cases.
 - Cloudflare D1 for workflow state and published JSON snapshots
 - Cloudflare R2 for source snapshots and generated social cards
 - Cloudflare Workflows for durable generation orchestration, with Queue retained as a compatibility fallback
-- Cloudflare Access for `/admin/*`
+- Cloudflare Access for `/admin` and `/admin/*`
 - Cloudflare Turnstile for public forms
 - `pnpm` for package management
 
@@ -87,7 +87,7 @@ Production resource IDs are not committed. Fill these into `wrangler.jsonc` or e
 - Turnstile widget: `rederive-public-forms`
 - Production domain: `rederive.io`
 - Dev/staging: default Cloudflare `workers.dev` URL
-- Access app: protect `/admin/*`
+- Access app: protect `/admin` and `/admin/*`
 - Provider secrets: `OPENAI_API_KEY`, `SEARCH_API_KEY`, `PAPER_SEARCH_API_KEY`
 - Production Worker: `rederive`
 - Dev/test Worker: `rederive-dev` on the default Cloudflare `workers.dev` URL

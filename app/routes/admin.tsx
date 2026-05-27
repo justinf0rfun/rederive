@@ -109,6 +109,7 @@ export async function loader({ context, request }: Route.LoaderArgs) {
         ? "local mock"
         : "cloudflare access",
     importedRunId: url.searchParams.get("imported"),
+    updatedModuleId: url.searchParams.get("updated"),
     topicRequests,
     feedbackItems,
     subscribers,
@@ -320,7 +321,7 @@ export async function action({ context, request }: Route.ActionArgs) {
       },
     });
 
-    return { ok: true, runId: module.runId, topicDisplayName: module.moduleKey };
+    return redirect(`/admin?updated=${module.id}`);
   }
 
   if (intent === "publish-generation-run") {
@@ -607,6 +608,12 @@ export default function Admin({
           <p className="mt-6 rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-900">
             Local redo import completed:{" "}
             <span className="font-mono">{loaderData.importedRunId}</span>
+          </p>
+        )}
+        {loaderData.updatedModuleId && (
+          <p className="mt-6 rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-900">
+            Draft module action completed:{" "}
+            <span className="font-mono">{loaderData.updatedModuleId}</span>
           </p>
         )}
 
@@ -1272,7 +1279,7 @@ function DraftModulesPanel({
                 </p>
               </div>
               <div className="flex flex-wrap gap-2">
-                <Form method="post">
+                <form action="/admin" method="post">
                   <input
                     name="intent"
                     type="hidden"
@@ -1285,8 +1292,8 @@ function DraftModulesPanel({
                   >
                     Approve
                   </button>
-                </Form>
-                <Form method="post">
+                </form>
+                <form action="/admin" method="post">
                   <input
                     name="intent"
                     type="hidden"
@@ -1304,8 +1311,8 @@ function DraftModulesPanel({
                   >
                     Reject
                   </button>
-                </Form>
-                <Form method="post">
+                </form>
+                <form action="/admin" method="post">
                   <input
                     name="intent"
                     type="hidden"
@@ -1323,9 +1330,9 @@ function DraftModulesPanel({
                   >
                     Request sources
                   </button>
-                </Form>
+                </form>
                 {module.moduleType === "stage" && (
-                  <Form method="post">
+                  <form action="/admin" method="post">
                     <input
                       name="intent"
                       type="hidden"
@@ -1338,7 +1345,7 @@ function DraftModulesPanel({
                     >
                       Regenerate
                     </button>
-                  </Form>
+                  </form>
                 )}
               </div>
             </div>
